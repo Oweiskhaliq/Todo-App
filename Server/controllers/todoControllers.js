@@ -1,26 +1,22 @@
 import userModel from "../models/userModel.js";
 import bcryptjs from "bcryptjs";
-
-
-
-export const test = (req, res) => {
-  res.send({
-    message: "Server is running...",
-  });
-};
+import validateRegisterInput from "../Validator/register.js";
 
 // register user controller
 export const registerController = async (req, res) => {
-  try {
+  const {errors, isValid} = validateRegisterInput(req.body)
+  // validate 
+  console.log('isvalid',isValid)
+  if(!isValid){
+    return res.status(404).json(errors)
+  }
+  try { 
+    // input validation 
+
+   
     const { name, email, password } = req.body;
 
-    if (name || email || password) {
-      return res.status(404).json({
-        message: "All field are required name,email,password",
-        error: true,
-        success: false,
-      });
-    }
+   
 
     const user = await userModel.findOne({ email: email });
 
