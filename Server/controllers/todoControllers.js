@@ -2,6 +2,8 @@ import userModel from "../models/userModel.js";
 import bcryptjs from "bcryptjs";
 import validateRegisterInput from "../Validator/register.js";
 import jwt from "jsonwebtoken"
+import validateLoginInput from "../Validator/login.js";
+import passport from "passport";
 
 
 //Routes:  Post  /api/user/register
@@ -10,7 +12,6 @@ import jwt from "jsonwebtoken"
 export const registerController = async (req, res) => {
   const {errors, isValid} = validateRegisterInput(req.body)
   // validate 
-  console.log('isvalid',isValid)
   if(!isValid){
     return res.status(404).json(errors)
   }
@@ -59,9 +60,13 @@ export const registerController = async (req, res) => {
 // Desc:  login   user
 // Access: public
 export const loginController =async (req,res)=>{
-
-  const errors = {}
+ //validation of login input
+ const {errors, isValid} = validateLoginInput(req.body)
+ if(!isValid){
+   return res.status(404).json(errors)
+ }
  try {
+ 
    // destructring the field
    const {email, password} = req.body;
 
@@ -72,22 +77,25 @@ export const loginController =async (req,res)=>{
      errors.nouser = "User not Register.";
      return res.status(404).json(errors)
    }
+  
  // checking the password in db
-   const muchedPassword = await bcryptjs.compare(password,user.password)
- 
+   const muchedPassword = await bcryptjs.compare(password,user.password);
+   
+  
    if (!muchedPassword){
      errors.password = "Incurrect password.";
      return res.status(400).json(errors)
    }
    //payload
-   const payload = {id:user._id.toString(), name:user.name}
+   const payload = {id:user._id.toString(), name:user.name};
+   
    
    // sending signing jwt token to user
-   const jwtToken = await jwt.sign(payload,process.env.JWTTOKEN_KEY,{expiresIn:'1hr'});
+   const jwtToken = await  jwt.sign(payload,process.env.JWTTOKEN_KEY,{expiresIn:'1hr'});
 
    //sending response
    return res.json({
-    token:`Bearer ${jwtToken}`,
+    token: "Bearer " + jwtToken,
     error: false,
     success: true,
   })
@@ -95,7 +103,7 @@ export const loginController =async (req,res)=>{
  
  } catch (error) {
   //if error
-  return response.status(500).json({
+  return res.status(500).json({
     message: error.message || error,
     error: true,
     success: false,
@@ -103,3 +111,8 @@ export const loginController =async (req,res)=>{
  }
 
 }
+
+//Routes:  Post  /api/user/auth
+// Desc:  Login user auth
+// Access: private
+

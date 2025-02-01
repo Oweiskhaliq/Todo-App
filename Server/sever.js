@@ -5,6 +5,8 @@ dotenv.config();
 import connectDB from "./config/DbConnection.js";
 import usersRouter from "./routes/userRouter.js";
 import bodyParser from "body-parser";
+import passport from "passport"
+import ConfigPassport from "./config/passportAuth.js"
 
 const app = express();
 app.use(
@@ -17,11 +19,19 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
+app.use(passport.initialize());
+ConfigPassport(passport);
+
 
 app.get("/", (req, res) => {
   res.send("Server is up and running!");
 });
 app.use("/api/user", usersRouter);
+
+//authentication using passport
+app.get('/api/user/current', passport.authenticate('jwt',{session: false}), (req,res)=>{
+  return res.json({success: true})
+})
 
 const PORT = process.env.PORT || 2999;
 
