@@ -5,8 +5,8 @@ dotenv.config();
 import connectDB from "./config/DbConnection.js";
 import usersRouter from "./routes/userRouter.js";
 import bodyParser from "body-parser";
-import passport from "passport"
-import ConfigPassport from "./config/passportAuth.js"
+import passport from "passport";
+import ConfigPassport from "./config/passportAuth.js";
 
 const app = express();
 app.use(
@@ -22,21 +22,28 @@ app.use(cors());
 app.use(passport.initialize());
 ConfigPassport(passport);
 
-
 app.get("/", (req, res) => {
   res.send("Server is up and running!");
 });
 app.use("/api/user", usersRouter);
 
 //authentication using passport
-app.get('/api/user/current', passport.authenticate('jwt',{session: false}), (req,res)=>{
-  return res.json({success: true})
-})
+app.get(
+  "/api/user/current",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    return res.json({
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+    });
+  }
+);
 
-const PORT = process.env.PORT || 2999;
+const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {
-  app.listen(PORT,'0.0.0.0', () => {
-    console.log(`Server is listening  on address: https://0.0.0.0:${PORT}`);
+  app.listen(PORT, () => {
+    console.log(`Server is listening  on address: http://localhost:${PORT}`);
   });
 });
