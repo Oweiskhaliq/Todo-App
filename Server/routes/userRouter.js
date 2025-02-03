@@ -3,6 +3,8 @@ import {
   AddTodoContorller,
   loginController,
   registerController,
+  getTodoListController,
+  deleteTodoController,
 } from "../controllers/todoControllers.js";
 import passport from "passport";
 
@@ -16,5 +18,16 @@ usersRouter.post(
   passport.authenticate("jwt", { session: false }),
   AddTodoContorller
 );
+usersRouter.get(
+  "/get-todo",
+  passport.authenticate("jwt", { session: false }),
+  getTodoListController
+);
+usersRouter.delete(
+  "/todo/:todo_id",
+  passport.authenticate("jwt", { session: false }),
+  deleteTodoController
+);
+//
 
 export default usersRouter;

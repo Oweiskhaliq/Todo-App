@@ -104,7 +104,19 @@ export const loginController = async (req, res) => {
 //Routes:  Post  /api/user/get-todo
 // Desc:  Get todo List
 // Access: private
-const getTodoListController = async (req, res) => {};
+export const getTodoListController = async (req, res) => {
+  const errors = {};
+  try {
+    const user = await userModel.findById({ _id: req.user.id });
+    if (!user) {
+      errors.nouser = "User not found.";
+      res.status(400).json(errors);
+    }
+    return res.json({ data: user, message: "data fetched successfully." });
+  } catch (error) {
+    console.log(error);
+  }
+};
 //Routes:  Post  /api/user/add-todo
 // Desc:  Add todo items
 // Access: private
@@ -130,9 +142,43 @@ export const AddTodoContorller = async (req, res) => {
     // Save the updated user document
     await findUser.save();
 
-    return res.json(findUser);
+    return res.json({ message: "Item saved successfully.", error: false });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+//Routes:  Delete  /api/user/todo/:id
+// Desc:  delete todo
+// Access: private
+export const deleteTodoController = async (req, res) => {
+  const errors = {};
+  try {
+    // Find the user
+    const user = await userModel.findOne({ _id: req.user.id });
+
+    if (!user) {
+      errors.nouser = "User not found.";
+      return res.status(400).json(errors);
+    }
+
+    // Find the index of the todo item
+    const todoIndex = user.todo.findIndex(
+      (todo) => todo._id.toString() === req.params.todo_id
+    );
+    if (todoIndex === -1) {
+      errors.notodo = "No Todo found for this user.";
+      return res.status(400).json(errors);
+    }
+
+    // Remove the todo item
+    user.todo.splice(todoIndex, 1);
+    await user.save(); // Save changes
+
+    return res.json({ message: "Todo deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
