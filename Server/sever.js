@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 import connectDB from "./config/DbConnection.js";
-import usersRouter from "./routes/userRouter.js";
+import usersRouter from "./routes/Api/user.js";
 import bodyParser from "body-parser";
 import passport from "passport";
 import ConfigPassport from "./config/passportAuth.js";
