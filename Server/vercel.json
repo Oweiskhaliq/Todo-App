@@ -1,0 +1,18 @@
+{
+    "version": 2,
+    "name": "Todo list app",
+    "builds": [
+      {
+        "src": "./server.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "/"
+      }
+    ]
+    
+  }
+  
